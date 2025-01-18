@@ -82,30 +82,25 @@ async def price(
             price_data.append({
                 "block": block_num,
                 "price": float(subnet_info.price.tao),
-                "unit": Balance.get_unit(netuid)
+                # "unit": Balance.get_unit(netuid)
             })
 
-    return {
-        "netuid": netuid,
-        "interval_hours": interval_hours,
-        "data_points": len(price_data),
-        "prices": price_data
-    }
+    return price_data
 
 
-# @app.get("/price_data")
-# async def get_price_data(netuid: int = 277, interval_hours: int = 24):
-#     """Get historical price data for a subnet"""
-#     try:
-#         subtensor = SubtensorInterface("test")
-#         async with subtensor:
-#             result = await price(subtensor, netuid, interval_hours)
-#             return result
-#     except Exception as e:
-#         return JSONResponse(
-#             content={"error": str(e)}, 
-#             status_code=500
-#         )
+@app.get("/price_data")
+async def get_price_data(netuid: int = 277, interval_hours: int = 24):
+    """Get historical price data for a subnet"""
+    try:
+        subtensor = SubtensorInterface("test")
+        async with subtensor:
+            result = await price(subtensor, netuid, interval_hours)
+            return result
+    except Exception as e:
+        return JSONResponse(
+            content={"error": str(e)}, 
+            status_code=500
+        )
 
 
 @app.get("/price_chart") 
@@ -117,7 +112,7 @@ async def get_price_chart(netuid: int = 277, interval_hours: int = 24):
             result = await price(subtensor, netuid, interval_hours)
             
             # Create DataFrame
-            df = pd.DataFrame(result["prices"])
+            df = pd.DataFrame(result)
             
             # Create plot
             fig = go.Figure(
@@ -131,7 +126,7 @@ async def get_price_chart(netuid: int = 277, interval_hours: int = 24):
                     template=dark_template,
                     title=f"Subnet {netuid} Price History",
                     xaxis_title="Block Number",
-                    yaxis_title=f"Price ({result['prices'][0]['unit']})"
+                    yaxis_title=f"Price"
                 )
             )
             

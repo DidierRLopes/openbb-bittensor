@@ -1,48 +1,122 @@
 {
-    "price_chart": {
-        "name": "Subnet Price Chart",
-        "description": "Interactive price chart for a Bittensor subnet",
-        "category": "Bittensor", 
-        "type": "chart",
-        "endpoint": "price_chart",
-        "gridData": {
-          "w": 40,
-          "h": 9
+  "price_chart": {
+      "name": "Subnet Price Chart",
+      "description": "Interactive price chart for a Bittensor subnet",
+      "category": "Bittensor", 
+      "type": "chart",
+      "endpoint": "price_chart",
+      "gridData": {
+        "w": 40,
+        "h": 9
+      },
+      "params": [
+        {
+          "paramName": "netuid",
+          "value": "277",
+          "label": "Subnet ID", 
+          "description": "The subnet ID to fetch price data for",
+          "type": "text"
         },
-        "params": [
+        {
+          "paramName": "interval_hours",
+          "value": "24",
+          "label": "Interval Hours",
+          "description": "Number of hours of historical data to fetch",
+          "type": "text",
+          "multiSelect": true,
+          "options": [
+            {
+              "value": "24",
+              "label": "24 hours"
+            },
+            {
+              "value": "48", 
+              "label": "48 hours"
+            },
+            {
+              "value": "72",
+              "label": "72 hours"
+            },
+            {
+              "value": "168",
+              "label": "1 week"
+            }
+          ]
+        }
+      ]
+  },
+  "price_data": {
+    "name": "Subnet Price Data",
+    "description": "Raw price data for a Bittensor subnet",
+    "category": "Bittensor",
+    "endpoint": "price_data",
+    "gridData": {
+      "w": 20,
+      "h": 6
+    },
+    "data": {
+      "dataKey": "priceData",
+      "table": {
+        "enableCharts": true,
+        "showAll": true,
+        "chartView": {
+          "enabled": true,
+          "chartType": "line"
+        },
+        "columnsDefs": [
           {
-            "paramName": "netuid",
-            "value": "277",
-            "label": "Subnet ID", 
-            "description": "The subnet ID to fetch price data for",
-            "type": "text"
+            "field": "block",
+            "headerName": "Block Number",
+            "chartDataType": "category",
+            "cellDataType": "number",
+            "formatterFn": "int",
+            "width": 150,
+            "pinned": "left"
           },
           {
-            "paramName": "interval_hours",
-            "value": "24",
-            "label": "Interval Hours",
-            "description": "Number of hours of historical data to fetch",
-            "type": "text",
-            "multiSelect": true,
-            "options": [
-              {
-                "value": "24",
-                "label": "24 hours"
-              },
-              {
-                "value": "48", 
-                "label": "48 hours"
-              },
-              {
-                "value": "72",
-                "label": "72 hours"
-              },
-              {
-                "value": "168",
-                "label": "1 week"
-              }
-            ]
+            "field": "price",
+            "headerName": "Price (τ)",
+            "chartDataType": "series",
+            "cellDataType": "number",
+            "width": 150
           }
         ]
-    }
+      }
+    },
+    "params": [
+      {
+        "paramName": "netuid",
+        "value": "277",
+        "label": "Subnet ID",
+        "description": "The subnet ID to fetch price data for",
+        "type": "text"
+      },
+      {
+        "paramName": "interval_hours", 
+        "value": "24",
+        "label": "Interval Hours",
+        "description": "Number of hours of historical data to fetch",
+        "type": "text",
+        "multiSelect": true,
+        "options": [
+          {
+            "value": "24",
+            "label": "24 hours"
+          },
+          {
+            "value": "48", 
+            "label": "48 hours"
+          },
+          {
+            "value": "72",
+            "label": "72 hours"
+          },
+          {
+            "value": "168",
+            "label": "1 week"
+          }
+        ]
+      }
+    ]
+  }
 }
