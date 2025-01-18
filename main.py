@@ -7,7 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import plotly.graph_objects as go
 from plotly_style import dark_template
-from typing import List
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.decorator import cache
 
 from btcli.bittensor_cli.src.bittensor.subtensor_interface import SubtensorInterface
 from btcli.bittensor_cli.src.bittensor.balances import Balance
@@ -31,6 +33,13 @@ app.add_middleware(
 )
 
 ROOT_PATH = Path(__file__).parent.resolve()
+
+
+# Add after app initialization
+@app.on_event("startup")
+async def startup():
+    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+
 
 @app.get("/")
 def read_root():
@@ -104,6 +113,7 @@ async def get_price_data(netuid: int = 277, interval_hours: int = 24):
         )
 
 @app.get("/price_data_multiple")
+@cache(expire=300)  # Cache for 5 minutes
 async def get_price_data_multiple(netuid: str = "1,2", interval_hours: int = 24):
     """Get historical price data for multiple subnets"""
     try:
