@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import plotly.graph_objects as go
 from plotly_style import dark_template
+from typing import List
 
 from btcli.bittensor_cli.src.bittensor.subtensor_interface import SubtensorInterface
 from btcli.bittensor_cli.src.bittensor.balances import Balance
@@ -102,6 +103,42 @@ async def get_price_data(netuid: int = 277, interval_hours: int = 24):
             status_code=500
         )
 
+@app.get("/price_data_multiple")
+async def get_price_data_multiple(netuid: str = "1,2", interval_hours: int = 24):
+    """Get historical price data for multiple subnets"""
+    try:
+        # Parse comma-separated string into list of integers
+        netuid_list = [int(n.strip()) for n in netuid.split(",")]
+
+        subtensor = SubtensorInterface("test")
+        async with subtensor:
+            # Get price data for each subnet
+            results = await asyncio.gather(*[
+                price(subtensor, netuid, interval_hours) 
+                for netuid in netuid_list
+            ])
+            
+            # Combine results by block number
+            combined = {}
+            for netuid, result in zip(netuid_list, results):
+                for data in result:
+                    block = data["block"]
+                    if block not in combined:
+                        combined[block] = {"block": block}
+                    combined[block][f"price_sn{netuid}"] = data["price"]
+            
+            # Convert to list sorted by block
+            combined_list = list(combined.values())
+            combined_list.sort(key=lambda x: x["block"])
+            
+            return combined_list
+            
+    except Exception as e:
+        return JSONResponse(
+            content={"error": str(e)}, 
+            status_code=500
+        )
+
 
 @app.get("/price_chart") 
 async def get_price_chart(netuid: int = 277, interval_hours: int = 24):
@@ -126,7 +163,7 @@ async def get_price_chart(netuid: int = 277, interval_hours: int = 24):
                     template=dark_template,
                     title=f"Subnet {netuid} Price History",
                     xaxis_title="Block Number",
-                    yaxis_title=f"Price"
+                    yaxis_title="Price"
                 )
             )
             
